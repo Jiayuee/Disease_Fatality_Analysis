@@ -78,7 +78,7 @@ def get_proportion_m3(disease):
 
 
 #### import data
-ip = "edited_data.h5"
+ip = "edited_data2.h5"
 op = pd.HDFStore('Proportions.h5')
 df = pd.read_hdf(ip,'total_disease_record','r+')
 sub_df = pd.read_hdf(ip,'latest_disease_record','r+')
