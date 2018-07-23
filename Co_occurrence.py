@@ -12,8 +12,9 @@ sub_df = pd.read_hdf(ip,'latest_disease_record','r+')
 
 
 # select part of the dataframe
-cols = ['dCCI_Dementia','dCD_Dementia','dCD_Hyp']
-df_c = sub_df[cols]
+cols = ['dCCI_Dementia','dCD_Dementia','dCD_Hyp','dCD_DM','dCCI_DMNoCompl']
+df_c = df[cols]
+np.set_printoptions(precision=3)
 c_matrix = np.dot(df_c.transpose(),df_c) # cooccurrence_matrix
 c_mx_dia = np.diagonal(c_matrix) # cooccurrence_matrix_diagonal
 with np.errstate(divide='ignore', invalid='ignore'):
