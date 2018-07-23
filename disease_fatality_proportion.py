@@ -98,7 +98,7 @@ for d in d_list:
 
 prop1 = pd.DataFrame({'disease':d_list, 'pt_num':pt_num,
                     'death':death, 'proportion':prop})
-
+prop1 = prop1.sort_values(by='proportion',ascending = False)
 op['current_year_1'] = prop1
 
 
@@ -116,7 +116,7 @@ for d in d_list:
     get_proportion_m2(d)
 prop2 = pd.DataFrame({'disease':d_list,'pt_num':pt_nums,'death':deaths,
                         'proportion':proportions,'uncertain_num1':uncertain_num1s})
-
+prop2 = prop2.sort_values(by='proportion',ascending = False)
 op['current_year_2'] = prop2
 
 ## proportion for patient dies the year next to the detection year
@@ -125,4 +125,5 @@ for d in d_list:
     get_proportion_m3(d)
 prop3 = pd.DataFrame({'disease':d_list,'pt_num':pt_nums,'death':deaths,
                         'proportion':proportions,'uncertain_num1':uncertain_num1s})
+prop3 = prop3.sort_values(by='proportion',ascending = False)
 op['next_year'] = prop3
