@@ -15,7 +15,7 @@ def get_death_num(disease):
 
 def get_proportion_m2(disease):
     cols = ['identifier','dDeath',disease]
-    df_d = sub_p0[cols]
+    df_d = df2[cols]
     df_d = df_d.set_index(np.arange(len(df_d)))
     pt_num = 0
     death = 0
@@ -46,7 +46,7 @@ def get_proportion_m2(disease):
 
 def get_proportion_m3(disease):
     cols = ['identifier','dDeath',disease]
-    df_d = sub_p0[cols]
+    df_d = df2[cols]
     df_d = df_d.set_index(np.arange(len(df_d)))
     pt_num = 0
     death = 0
@@ -82,6 +82,7 @@ ip = "edited_data2.h5"
 op = pd.HDFStore('Proportions.h5')
 df = pd.read_hdf(ip,'total_disease_record','r+')
 sub_df = pd.read_hdf(ip,'latest_disease_record','r+')
+df2 = pd.read_hdf(ip,'selected_patients','r+')
 d_list = list(df)
 for i in ['identifier', 'year', 'dDeath']:
     d_list.remove(i)
@@ -103,12 +104,6 @@ op['current_year_1'] = prop1
 
 
 #### Method 2 : run a loop for all rows, for patients with more than one record
-## exclude patients who only have one record
-sub_p0 = pd.DataFrame()
-for i in sub_df['identifier']:
-    idx = df['identifier'] == i
-    if len(df[idx]) > 1:
-        sub_p0 = sub_p0.append(df[idx])
 
 ## proportion for patient dies the year they get sick
 pt_nums,deaths,proportions,uncertain_num1s=[],[],[],[]
