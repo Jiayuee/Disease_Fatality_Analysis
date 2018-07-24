@@ -13,15 +13,18 @@ df = df.set_index(np.arange(len(df)))
 
 ## select subset of dataframe
 d_list = ['dCD_AtrFib','dCD_CHD','dCD_DM','dCD_LPD','dCD_HeartFail','dCD_Hyp',
-            'dCD_PVD', 'dCD_Renal','dCD_Rheumatoid', 'dCD_Stroke',
-            'dCD_SuspectedStroke','dCCI_AMI','dCCI_CVD','dCCI_CHF',
-            'dCCI_DMCompl','dCCI_DMNoCompl', 'dCCI_PVD','dCCI_Renal',
-            'dCCI_Rheuma']
-cols = ['identifier','year','dDeath'] + d_list
+            'dCD_PVD', 'dCD_Renal','dCD_Rheumatoid', 'dCD_Stroke','dCD_SuspectedStroke',
+            'dCCI_AMI','dCCI_CVD','dCCI_Renal','dCCI_Rheuma']
+cols = ['identifier','year','dDeath','age','male','race'] + d_list
 df = df[cols]
 sub_df = df.drop_duplicates(subset=['identifier'], keep = 'last')
 
+df2 = pd.DataFrame()
+for i in sub_df['identifier']:
+    idx = df['identifier'] == i
+    if len(df[idx]) > 1:
+        df2 = df2.append(df[idx])
 op = pd.HDFStore('edited_data2.h5')
 op['latest_disease_record'] = sub_df
-
 op['total_disease_record'] = df
+op['selected_patients'] = df2
