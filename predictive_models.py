@@ -5,11 +5,11 @@ from pandas import DataFrame
 from sklearn.linear_model import LogisticRegression, LinearRegression
 from sklearn.model_selection import cross_val_score, KFold
 from sklearn.metrics import roc_auc_score, mean_squared_error
-from sklearn.ensemble import RandomForestRegressor
-from xgboost import XGBRegressor
-from lightgbm import LGBMRegressor
+from sklearn.ensemble import RandomForestRegressor, RandomForestClassifier
+from xgboost import XGBRegressor, XGBClassifier
+from lightgbm import LGBMRegressor, LGBMClassifier
 
-
+#### import data
 ip = 'edited_data2.h5'
 df = pd.read_hdf(ip,'selected_patients','r+')
 general_info = ['age','male','race']
@@ -18,8 +18,8 @@ sd_list = ['dCD_AtrFib','dCD_HeartFail','dCD_PVD','dCCI_AMI']
 lsd_list = ['dCD_CHD','dCD_DM','dCD_LPD','dCD_Hyp','dCD_Renal','dCD_Rheumatoid',
             'dCD_Stroke','dCD_SuspectedStroke','dCCI_CVD','dCCI_Renal','dCCI_Rheuma']
 
-# clean dummy variable race
-df[race].apply(lambda x: x.split(sep='_')[1])
+#### clean dummy variable race
+df['race'].apply(lambda x: x.split(sep='_')[1])
 dummy_fields = ['race']
 for each in dummy_fields:
     dummies = pd.get_dummies(df.loc[:, each], prefix=each )
@@ -27,47 +27,36 @@ for each in dummy_fields:
 df = df.drop('race', axis = 1)
 
 x = df.drop(sd_list, axis = 1)
-y = df[sd_list[0]]
+# y = df[sd_list[0]]
 
+#### build five models
 model1 = LinearRegression(copy_X=True)
-model2 = RandomForestRegressor(max_depth=3, random_state=0)
-model3 = XGBRegressor()
-model4 = LGBMRegressor()
-models = [model1, model2, model3, model4]
-model_names = []
-scores2 = {}
-for m in models:
-    model_names.append(m.__class__.__name__)
-    scores2[m.__class__.__name__] = {}
-# there are two methods to cross validate. First method only gives you there
-# the score, but does not give you a trained model. It is used for understanding
-# the problem - which predictors and which models work better
-# sklearn provides a function cross_val_score for this
-scores1 = {} # scores1 is scores by method 1
-for i in range(len(models)):
-    scores1[i] = cross_val_score(models[i], x, y,
-                                scoring='neg_mean_squared_error', cv=5)
+model2 = RandomForestClassifier(max_depth=3, random_state=0)
+model3 = XGBClassifier()
+model4 = LGBMClassifier()
+model5 = LogisticRegression()
+models = [model1,model2,model3,model4,model5]
 
-for i in range(len(models)):
-    print('{}: {}'.format(models[i].__class__.__name__, scores1[i]))
-
-# # method 2 involves going through train and test splis one by one
-# # sklearn provides a class KFold to help with that
-# kf = KFold(n_splits=5, shuffle=True)
-#
-# for n, (train_index, test_index) in enumerate(kf.split(x)):
-#     ## we will make n models, one for each fold
-#     x_train, x_test = x.iloc[train_index], x.iloc[test_index]
-#     y_train, y_test = y.iloc[train_index], y.iloc[test_index]
+#### evaluate the models
+# def evaluate_model_for_disease(disease):
+#     scores1 = {} # scores1 is scores by method
 #     for i in range(len(models)):
-#         model = models[i]
-#         model.fit(x_train, y_train)
-#         y_pred = model.predict(x_test)
-#         this_score = mean_squared_error(y_test, y_pred)
-#         scores2[model_names[i]][n] = this_score
-#         # models_collection[model_names[i]].append(model)
+#         scores1[i] = cross_val_score(models[i], x, df[disease],
+#                                 scoring='roc_auc', cv=5)
+#     for i in range(len(models)):
+#         print('{}: {}: {}'.format(disease,models[i].__class__.__name__, np.mean(scores1[i])))
 #
-# scores2 = pd.DataFrame(scores2)
-#
-# ## now we have n models which can be used for future data,
-# ## and average of outputs of these models can be used as the prediction
+# for d in sd_list:
+#     evaluate_model_for_disease(d)
+
+#### evaluate models and print out 
+for m in models:
+    scores2 = {}
+    scores = []
+    for i in range(len(sd_list)):
+        scores2[i] = cross_val_score(m,x,df[sd_list[i]],
+                                    scoring='roc_auc', cv=5)
+        print('{}: {}: {}'.format(m.__class__.__name__, sd_list[i],np.mean(scores2[i])))
+        scores.append(np.mean(scores2[i]))
+    score = np.mean(scores)
+    print('{}: {}'.format(m.__class__.__name__,score))
