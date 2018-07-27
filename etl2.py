@@ -6,7 +6,7 @@ from pandas import DataFrame
 
 #### import dataframe
 ip = "data.pkl"
-op = pd.HDFStore('Proportions2.h5')
+op = pd.HDFStore('edited_data2.h5')
 df = pd.read_pickle(ip)
 df = df.sort_values(['identifier','year'])
 df = df.set_index(np.arange(len(df)))
@@ -24,6 +24,7 @@ for i in sub_df['identifier']:
     idx = df['identifier'] == i
     if len(df[idx]) > 1:
         df2 = df2.append(df[idx])
+
 op = pd.HDFStore('edited_data2.h5')
 op['latest_disease_record'] = sub_df
 op['total_disease_record'] = df
